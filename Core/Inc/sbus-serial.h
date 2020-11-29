@@ -2,6 +2,7 @@
 #define SBUS_SERIAL_H__
 
 #include "main.h"
+#include <climits>
 
 
 class TSbusSerial
@@ -16,7 +17,7 @@ class TSbusSerial
   static uint32_t const SbusFrameSize = 25;
 
 public:
-  TSbusSerial( UART_HandleTypeDef  &USARTx, bool &SerialFlag );
+  TSbusSerial( USART_TypeDef *const USARTx, bool &SerialFlag );
   void Setup();
 
   uint8_t Receive();
@@ -25,22 +26,31 @@ public:
   void Transmit( uint8_t const Data );
   void Transmit( uint8_t const *const Data, uint32_t const Length );
 
-  void HAL_UART_ErrorCallback();
-  void HAL_UART_RxCpltCallback();
-  void HAL_UART_TxCpltCallback();
+  void TxEmpty();
+  void RxNotEmpty();
+  void RxError();
+  void RxTimeout();
+  void USART_IRQHandler();
 
 private:
   bool volatile FailSafe;
   bool &SerialFlag;
   uint8_t RxData[ RxFifoSize ];
   uint8_t TxData[ TxFifoSize ];
-  uint32_t volatile RxLen;
-  uint32_t volatile TxLen;
-  uint32_t volatile RxTail;
-  uint32_t volatile TxTail;
-  uint32_t volatile RxHead;
-  uint32_t volatile TxHead;
-  UART_HandleTypeDef &USARTx;
+  uint8_t CountPE;
+  uint8_t CountFE;
+  uint8_t CountNE;
+  uint8_t CountORE;
+  uint8_t CountRxFUE;
+  uint8_t CountRxFOE;
+  uint8_t CountTxFOE;
+  uint32_t RxLen;
+  uint32_t TxLen;
+  uint32_t RxTail;
+  uint32_t TxTail;
+  uint32_t RxHead;
+  uint32_t TxHead;
+  USART_TypeDef *const USARTx;
 };
 
 #endif // SBUS_SERIAL_H__

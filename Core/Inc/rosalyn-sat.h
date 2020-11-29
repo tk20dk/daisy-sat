@@ -9,7 +9,6 @@
 
 
 extern "C" SPI_HandleTypeDef hspi1;
-extern "C" UART_HandleTypeDef huart1;
 
 class TRosalynSat
 {
@@ -18,9 +17,7 @@ public:
 
   void Loop();
   void Setup();
-  void HAL_UART_ErrorCallback();
-  void HAL_UART_RxCpltCallback();
-  void HAL_UART_TxCpltCallback();
+  void USART_IRQHandler();
   void HAL_GPIO_EXTI_Callback( uint16_t const GPIO_Pin );
 
 private:

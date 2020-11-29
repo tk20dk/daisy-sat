@@ -37,6 +37,7 @@ void TRosalynSat::Loop()
   {
     SerialFlag = false;
     Sbus.DecodeSerial( SbusSerial );
+    HmiError( 5 );
   }
 }
 
@@ -136,19 +137,9 @@ void TRosalynSat::HmiStatus( uint32_t const Interval )
   SetPin( HMI_STATUS_GPIO_Port, HMI_STATUS_Pin );
 }
 
-void TRosalynSat::HAL_UART_ErrorCallback()
+void TRosalynSat::USART_IRQHandler()
 {
-  SbusSerial.HAL_UART_ErrorCallback();
-}
-
-void TRosalynSat::HAL_UART_RxCpltCallback()
-{
-  SbusSerial.HAL_UART_RxCpltCallback();
-}
-
-void TRosalynSat::HAL_UART_TxCpltCallback()
-{
-  SbusSerial.HAL_UART_TxCpltCallback();
+  SbusSerial.USART_IRQHandler();
 }
 
 TRosalynSat::TRosalynSat() :
@@ -172,7 +163,7 @@ TRosalynSat::TRosalynSat() :
   NvData(),
   TimeoutHmiError( 0 ),
   TimeoutHmiStatus( 0 ),
-  SbusSerial( huart1, SerialFlag )
+  SbusSerial( USART1, SerialFlag )
 {
 }
 
@@ -186,19 +177,9 @@ extern "C" void RosalynSatSetup()
   RosalynSat.Setup();
 }
 
-extern "C" void HAL_UART_ErrorCallback(UART_HandleTypeDef *const Handle )
+extern "C" void USART1_IRQHandler()
 {
-  RosalynSat.HAL_UART_ErrorCallback();
-}
-
-extern "C" void HAL_UART_RxCpltCallback( UART_HandleTypeDef *const Handle )
-{
-  RosalynSat.HAL_UART_RxCpltCallback();
-}
-
-extern "C" void HAL_UART_TxCpltCallback( UART_HandleTypeDef *const Handle )
-{
-  RosalynSat.HAL_UART_TxCpltCallback();
+  RosalynSat.USART_IRQHandler();
 }
 
 extern "C" void HAL_GPIO_EXTI_Callback( uint16_t const GPIO_Pin )

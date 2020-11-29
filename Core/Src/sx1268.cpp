@@ -40,7 +40,7 @@ bool TSx1268::Init( Modulation_t const &Modulation, int32_t const TxPower, uint3
   SetRegulatorMode( USE_DCDC );
   SetDio3AsTcxoCtrl( TCXO_CTRL_1_8V, 500 );
 
-  RadioStatus_t Status =  GetStatus();
+  RadioStatus_t Status = GetStatus();
   RadioError_t Errors = GetDeviceErrors();
   if(( Errors.Value != 0x2000 ) || ( Status.Fields.CpuBusy != 0 ) ||
      ( Status.Fields.ChipMode != 2 ) || ( Status.Fields.CmdStatus != 1 ))
@@ -52,7 +52,7 @@ bool TSx1268::Init( Modulation_t const &Modulation, int32_t const TxPower, uint3
   calibParam.Value = 0x7F;
   Calibrate( calibParam );
 
-  Status =  GetStatus();
+  Status = GetStatus();
   Errors = GetDeviceErrors();
   if(( Errors.Value != 0x2000 ) || ( Status.Fields.CpuBusy != 0 ) ||
      ( Status.Fields.ChipMode != 2 ) || ( Status.Fields.CmdStatus != 1 ))
