@@ -33,8 +33,9 @@ public:
   void USART_IRQHandler();
 
 private:
-  bool volatile FailSafe;
+  bool FailSafe;
   bool &SerialFlag;
+  bool FlagRxTimeout;
   uint8_t RxData[ RxFifoSize ];
   uint8_t TxData[ TxFifoSize ];
   uint8_t CountPE;

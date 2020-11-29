@@ -148,7 +148,7 @@ TRosalynSat::TRosalynSat() :
   SerialFlag( false ),
   Sbus(),
   Radio(
-    433050000U,
+    433050000u,
 	RADIO_NSS_GPIO_Port,
 	RADIO_NSS_Pin,
 	RADIO_NRST_GPIO_Port,
