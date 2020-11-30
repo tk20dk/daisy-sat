@@ -1,10 +1,9 @@
 #include <rosalyn-sat.h>
 
 
+TSystem System;
 TDriverSpi Spi;
 TRosalynSat RosalynSat;
-TSystem System;
-
 
 uint32_t volatile TickSys;
 extern "C" uint32_t HAL_GetTick()
@@ -20,7 +19,7 @@ void TRosalynSat::Setup()
   Spi.Setup();
   SbusSerial.Setup();
 
-  if( Radio.Init( System.Config.Modulation[ 2 ], System.Config.TxPower, System.Config.Channel ))
+  if( Radio.Setup( System.Config.Modulation[ 2 ], System.Config.TxPower, System.Config.Channel ))
   {
     Radio.Receive();
   }
@@ -35,7 +34,7 @@ void TRosalynSat::Loop()
   if(( Tick > LastTick ) && ( Tick % 14 ) == 0 )
   {
     LastTick = Tick;
-    Sbus.EncodeSerial( SbusSerial );
+    SbusSerial.Transmit( SbusDataDownstream );
   }
 
   if( RadioFlag )
@@ -47,7 +46,7 @@ void TRosalynSat::Loop()
   if( SerialFlag )
   {
     SerialFlag = false;
-    Sbus.DecodeSerial( SbusSerial );
+    SbusSerial.Receive( SbusDataUpstream );
     HmiError( 5 );
   }
 }
@@ -62,18 +61,21 @@ void TRosalynSat::RadioEvent( TRadioEvent const Event )
     auto const Rssi = Radio.GetRssi();
     auto const LenRx = Radio.ReadPacket( Buffer, sizeof( Buffer ));
 
-    HmiStatus( 100 );
+    HmiStatus( 10 );
     UartPrintf( "Rssi:%4d Snr:%3d.%u Len:%u Length\n", Rssi, Snr / 10, abs(Snr) % 10, LenRx );
 
-    Sbus.DecodeLoRa( Snr, Rssi, Buffer, LenRx );
+    TSbusData SbusData;
+    SbusData.Decode( Buffer );
 
-    auto const LenTx = Sbus.EncodeLoRa( Buffer, sizeof( Buffer ));
-    Radio.Transmit( Buffer, LenTx );
+    TSbusFrame SbusFrame;
+    SbusData.Encode( SbusFrame );
+
+    Radio.Transmit( SbusFrame.Buffer, sizeof( SbusFrame ));
   }
 
   if( Event == TRadioEvent::TxDone )
   {
-    HmiStatus( 100 );
+    HmiStatus( 10 );
     Radio.Receive();
   }
 
@@ -90,6 +92,8 @@ void TRosalynSat::RadioEvent( TRadioEvent const Event )
 
     HmiError( 1000 );
     UartPrintf( "Rssi:%4d Snr:%3d.%u Len:%u CRC Error\n", Rssi, Snr / 10, abs(Snr) % 10, LenRx );
+
+    Radio.Receive();
   }
 
   if( Event == TRadioEvent::NoCrc )
@@ -100,6 +104,8 @@ void TRosalynSat::RadioEvent( TRadioEvent const Event )
 
     HmiError( 1000 );
     UartPrintf( "Rssi:%4d Snr:%3d.%u Len:%u No CRC\n", Rssi, Snr / 10, abs(Snr) % 10, LenRx );
+
+    Radio.Receive();
   }
 }
 
@@ -154,7 +160,6 @@ TRosalynSat::TRosalynSat() :
   TimerFlag( false ),
   RadioFlag( false ),
   SerialFlag( false ),
-  Sbus(),
   Radio(
     433050000u,
 	RADIO_NSS_GPIO_Port,
@@ -171,7 +176,9 @@ TRosalynSat::TRosalynSat() :
   NvData(),
   TimeoutHmiError( 0 ),
   TimeoutHmiStatus( 0 ),
-  SbusSerial( USART1, SerialFlag )
+  SbusSerial( USART1, SerialFlag ),
+  SbusDataUpstream(),
+  SbusDataDownstream()
 {
 }
 

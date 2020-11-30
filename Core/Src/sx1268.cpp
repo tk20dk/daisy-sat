@@ -33,7 +33,7 @@ TSx1268::TSx1268(
 {
 }
 
-bool TSx1268::Init( Modulation_t const &Modulation, int32_t const TxPower, uint32_t const Channel )
+bool TSx1268::Setup( Modulation_t const &Modulation, int32_t const TxPower, uint32_t const Channel )
 {
   Reset();
 

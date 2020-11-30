@@ -1,30 +1,110 @@
 #ifndef SBUS_H__
 #define SBUS_H__
 
-#include "sbus-serial.h"
+#include "main.h"
+#include <climits>
 
 
-struct TSbus
+union TSbusFrame
 {
-  static uint8_t const SbusSOF           = 0x0f;
-  static uint8_t const SbusEOF           = 0x00;
-  static uint8_t const SbusFlagNull      = 0x00;
-  static uint8_t const SbusFlagCh17      = 0x01;
-  static uint8_t const SbusFlagCh18      = 0x02;
-  static uint8_t const SbusFlagLostFrame = 0x04;
-  static uint8_t const SbusFlagFailSafe  = 0x08;
-  static uint8_t const SbusFrameSize     = 25;
+  static uint32_t const SbusFrameSize = 25;
+  uint8_t Buffer[ SbusFrameSize ];
+  struct
+  {
+    uint8_t Sof;
+    uint32_t Ch1:11;
+    uint32_t Ch2:11;
+    uint32_t Ch3:11;
+    uint32_t Ch4:11;
+    uint32_t Ch5:11;
+    uint32_t Ch6:11;
+    uint32_t Ch7:11;
+    uint32_t Ch8:11;
+    uint32_t Ch9:11;
+    uint32_t Ch10:11;
+    uint32_t Ch11:11;
+    uint32_t Ch12:11;
+    uint32_t Ch13:11;
+    uint32_t Ch14:11;
+    uint32_t Ch15:11;
+    uint32_t Ch16:11;
+    uint8_t Flag;
+    uint8_t Eof;
+  } __attribute__((__packed__));
+};
 
-  TSbus();
-  TSbus( uint8_t const* const Buffer, uint32_t const Length );
+struct TSbusData
+{
+  static uint32_t const SbusSOF           = 0x0f;
+  static uint32_t const SbusEOF           = 0x00;
+  static uint32_t const SbusFlagNull      = 0x00;
+  static uint32_t const SbusFlagCh17      = 0x01;
+  static uint32_t const SbusFlagCh18      = 0x02;
+  static uint32_t const SbusFlagLostFrame = 0x04;
+  static uint32_t const SbusFlagFailSafe  = 0x08;
 
-  bool Encode( uint8_t* const, uint32_t const MaxLen );
-  bool Decode( uint8_t const* const Buffer, uint32_t const Length );
+  void Encode( uint8_t *const Buffer ) const
+  {
+    Encode( *reinterpret_cast< TSbusFrame* >( Buffer ));
+  }
 
-  void DecodeLoRa( int32_t const Snr, uint32_t const Rssi, uint8_t const* const Buffer, uint32_t const Length );
-  uint32_t EncodeLoRa( uint8_t *const Buffer, uint32_t const MaxLen );
-  void EncodeSerial( TSbusSerial &SbusSerial );
-  void DecodeSerial( TSbusSerial &SbusSerial );
+  void Decode( uint8_t const* const Buffer )
+  {
+    Decode( *reinterpret_cast< TSbusFrame const* >( Buffer ));
+  }
+
+  void Encode( TSbusFrame &Data ) const
+  {
+    Data.Sof = SbusSOF;
+	Data.Eof = SbusEOF;
+
+	Data.Ch1 = Ch1;
+	Data.Ch2 = Ch2;
+	Data.Ch3 = Ch3;
+	Data.Ch4 = Ch4;
+	Data.Ch5 = Ch5;
+	Data.Ch6 = Ch6;
+	Data.Ch7 = Ch7;
+	Data.Ch8 = Ch8;
+	Data.Ch9 = Ch9;
+	Data.Ch10 = Ch10;
+	Data.Ch11 = Ch11;
+	Data.Ch12 = Ch12;
+	Data.Ch13 = Ch13;
+	Data.Ch14 = Ch14;
+	Data.Ch15 = Ch15;
+	Data.Ch16 = Ch16;
+
+	Data.Flag = SbusFlagNull;
+	Data.Flag |= Ch17 ? SbusFlagCh17 : SbusFlagNull;
+	Data.Flag |= Ch18 ? SbusFlagCh18 : SbusFlagNull;
+	Data.Flag |= FailSafe ? SbusFlagLostFrame : SbusFlagNull;
+	Data.Flag |= LostFrame ? SbusFlagFailSafe : SbusFlagNull;
+  }
+
+  void Decode( TSbusFrame const &Data )
+  {
+    Ch1 = Data.Ch1;
+	Ch2 = Data.Ch2;
+	Ch3 = Data.Ch3;
+	Ch4 = Data.Ch4;
+	Ch5 = Data.Ch5;
+	Ch6 = Data.Ch6;
+	Ch7 = Data.Ch7;
+	Ch8 = Data.Ch8;
+	Ch8 = Data.Ch9;
+	Ch10 = Data.Ch10;
+	Ch11 = Data.Ch11;
+	Ch12 = Data.Ch12;
+	Ch13 = Data.Ch13;
+	Ch14 = Data.Ch14;
+	Ch15 = Data.Ch15;
+	Ch16 = Data.Ch16;
+	Ch17 = ( Data.Flag & SbusFlagCh17 ) == SbusFlagCh17;
+	Ch18 = ( Data.Flag & SbusFlagCh18 ) == SbusFlagCh18;
+	FailSafe = ( Data.Flag & SbusFlagLostFrame ) == SbusFlagLostFrame;
+	LostFrame = ( Data.Flag & SbusFlagFailSafe ) == SbusFlagFailSafe;
+  }
 
   bool Ch17;
   bool Ch18;
@@ -46,6 +126,41 @@ struct TSbus
   uint16_t Ch14;
   uint16_t Ch15;
   uint16_t Ch16;
+};
+
+class TSbusSerial
+{
+  static uint32_t const SbusSOF       = 0x0f;
+  static uint32_t const SbusEOF       = 0x00;
+  static uint32_t const SbusStateNull = 0;
+  static uint32_t const SbusStateSOF  = 1;
+  static uint32_t const SbusStateEOF  = 25;
+  static uint32_t const SbusFrameSize = 25;
+
+public:
+  TSbusSerial( USART_TypeDef *const USARTx, bool &SerialFlag );
+
+  void Setup();
+  void Receive( TSbusData &Data ) const;
+  void Transmit( TSbusData const &Data );
+
+  void RxError();
+  void TxEmpty();
+  void RxNotEmpty();
+  void USART_IRQHandler();
+
+private:
+  bool RxTimeout;
+  bool &SerialFlag;
+  uint8_t CountPE;
+  uint8_t CountFE;
+  uint8_t CountNE;
+  uint8_t CountORE;
+  uint32_t RxState;
+  uint32_t TxState;
+  TSbusFrame RxFrame;
+  TSbusFrame TxFrame;
+  USART_TypeDef *const USARTx;
 };
 
 #endif // SBUS_H__

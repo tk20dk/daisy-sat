@@ -1,11 +1,11 @@
 #ifndef ROSALYN_SAT_H__
 #define ROSALYN_SAT_H__
 
+#include <sbus.h>
 #include "nvdata.h"
 #include "system.h"
 #include "sx1268.h"
 #include "sbus.h"
-#include "sbus-serial.h"
 
 
 class TRosalynSat
@@ -29,12 +29,13 @@ private:
   bool TimerFlag;
   bool RadioFlag;
   bool SerialFlag;
-  TSbus Sbus;
   TSx1268 Radio;
   TNvData NvData;
   uint32_t TimeoutHmiError;
   uint32_t TimeoutHmiStatus;
   TSbusSerial SbusSerial;
+  TSbusData SbusDataUpstream;
+  TSbusData SbusDataDownstream;
 };
 
 #endif // ROSALYN_SAT_H__

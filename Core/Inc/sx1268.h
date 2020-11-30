@@ -83,7 +83,7 @@ public:
     uint32_t const PinTXEN,
 	TCallback const Callback );
 
-  bool Init( Modulation_t const &Modulation, int32_t const TxPower, uint32_t const Channel );
+  bool Setup( Modulation_t const &Modulation, int32_t const TxPower, uint32_t const Channel );
   void Receive();
   void Transmit( void const *const Buffer, uint16_t const Length );
   void Interrupt();
