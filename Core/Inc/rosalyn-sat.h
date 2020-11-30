@@ -8,8 +8,6 @@
 #include "sbus-serial.h"
 
 
-extern "C" SPI_HandleTypeDef hspi1;
-
 class TRosalynSat
 {
 public:
@@ -17,6 +15,7 @@ public:
 
   void Loop();
   void Setup();
+  void SysTick_Handler();
   void USART_IRQHandler();
   void HAL_GPIO_EXTI_Callback( uint16_t const GPIO_Pin );
 

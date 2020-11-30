@@ -34,9 +34,9 @@ uint8_t TSbusSerial::Receive()
     RxTail = 0;
   }
 
-  LL_USART_DisableIT_RXNE( USARTx );
+  __disable_irq();
   RxLen--;
-  LL_USART_EnableIT_RXNE( USARTx );
+  __enable_irq();
 
   return Data;
 }
@@ -58,8 +58,9 @@ void TSbusSerial::Transmit( uint8_t const Data )
     TxHead = 0;
   }
 
-  LL_USART_DisableIT_TXE( USARTx );
+  __disable_irq();
   TxLen++;
+  __enable_irq();
   LL_USART_EnableIT_TXE( USARTx );
 }
 

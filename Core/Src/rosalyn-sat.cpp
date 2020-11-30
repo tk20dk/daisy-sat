@@ -1,12 +1,23 @@
 #include <rosalyn-sat.h>
 
 
-TSpi Spi( hspi1 );
+TDriverSpi Spi;
 TRosalynSat RosalynSat;
 TSystem System;
 
+
+uint32_t volatile TickSys;
+extern "C" uint32_t HAL_GetTick()
+{
+  return TickSys;
+}
+
 void TRosalynSat::Setup()
 {
+  // Enable SysTick IRQ
+  SysTick->CTRL  |= SysTick_CTRL_TICKINT_Msk;
+
+  Spi.Setup();
   SbusSerial.Setup();
 
   if( Radio.Init( System.Config.Modulation[ 2 ], System.Config.TxPower, System.Config.Channel ))
@@ -137,6 +148,11 @@ void TRosalynSat::HmiStatus( uint32_t const Interval )
   SetPin( HMI_STATUS_GPIO_Port, HMI_STATUS_Pin );
 }
 
+void TRosalynSat::SysTick_Handler()
+{
+  TickSys++;
+}
+
 void TRosalynSat::USART_IRQHandler()
 {
   SbusSerial.USART_IRQHandler();
@@ -175,6 +191,11 @@ extern "C" void RosalynSatLoop()
 extern "C" void RosalynSatSetup()
 {
   RosalynSat.Setup();
+}
+
+extern "C" void SysTick_Handler()
+{
+  RosalynSat.SysTick_Handler();
 }
 
 extern "C" void USART1_IRQHandler()

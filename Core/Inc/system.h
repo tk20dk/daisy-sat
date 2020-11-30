@@ -3,23 +3,23 @@
 
 #include <cstdlib>
 #include <cstdarg>
-#include "stm32f0xx_hal.h"
+#include "main.h"
 #include "sx1268-def.h"
 
 
 void UartPrintf( char const *const Format, ... );
 
-inline void SetPin( GPIO_TypeDef *const Port, uint32_t const Pin )
+inline void SetPin( GPIO_TypeDef *const Gpio, uint32_t const PinMask )
 {
-  Port->BSRR = Pin;
+  LL_GPIO_SetOutputPin( Gpio, PinMask );
 }
-inline void ResetPin( GPIO_TypeDef *const Port, uint32_t const Pin )
+inline void ResetPin( GPIO_TypeDef *const Gpio, uint32_t const PinMask )
 {
-  Port->BSRR = ( Pin << 16U );
+  LL_GPIO_ResetOutputPin( Gpio, PinMask );
 }
-inline bool ReadPin( GPIO_TypeDef *const Port, uint32_t const Pin )
+inline bool ReadPin( GPIO_TypeDef *const Gpio, uint32_t const PinMask )
 {
-  return (( Port->IDR & Pin ) != 0U );
+  return LL_GPIO_IsInputPinSet( Gpio, PinMask ) != 0;
 }
 
 uint8_t const FLAG_CONFIG = 0x12;

@@ -595,9 +595,9 @@ void TSx1268::WaitOnBusy()
 void TSx1268::Reset( void )
 {
   ResetPin( PortNRST, PinNRST );
-  HAL_Delay( 2 );
+  LL_mDelay( 2 );
   SetPin( PortNRST, PinNRST );
-  HAL_Delay( 2 );
+  LL_mDelay( 2 );
 }
 
 uint16_t TSx1268::ReadPacket( void *const Buffer, uint32_t const MaxLength )

@@ -1,11 +1,7 @@
 #ifndef NVDATA_H__
 #define NVDATA_H__
 
-#ifdef STM32F303xC
-  #include "stm32f3xx_hal.h"
-#elif defined ( STM32F070x6 ) || defined( STM32F072xB )
-  #include "stm32f0xx_hal.h"
-#endif
+#include "main.h"
 #include "config.h"
 
 
