@@ -103,24 +103,6 @@ void TRosalynSat::RadioEvent( TRadioEvent const Event )
   }
 }
 
-void TRosalynSat::HAL_GPIO_EXTI_Callback( uint16_t const GPIO_Pin )
-{
-  switch( GPIO_Pin )
-  {
-    case RADIO_DIO1_Pin:
-    {
-      RadioFlag = true;
-    }
-    break;
-
-    default:
-    {
-      HmiError();
-    }
-    break;
-  }
-}
-
 void TRosalynSat::HmiLoop()
 {
   if( TimeoutHmiError && ( HAL_GetTick() >= TimeoutHmiError ))
@@ -156,6 +138,16 @@ void TRosalynSat::SysTick_Handler()
 void TRosalynSat::USART_IRQHandler()
 {
   SbusSerial.USART_IRQHandler();
+}
+
+void TRosalynSat::EXTI0_1_IRQHandler()
+{
+  // Radio DIO1 interrupt
+  if( LL_EXTI_IsActiveFlag_0_31( LL_EXTI_LINE_0 ) != RESET )
+  {
+    LL_EXTI_ClearFlag_0_31( LL_EXTI_LINE_0 );
+    RadioFlag = true;
+  }
 }
 
 TRosalynSat::TRosalynSat() :
@@ -203,7 +195,7 @@ extern "C" void USART1_IRQHandler()
   RosalynSat.USART_IRQHandler();
 }
 
-extern "C" void HAL_GPIO_EXTI_Callback( uint16_t const GPIO_Pin )
+extern "C" void EXTI0_1_IRQHandler()
 {
-  RosalynSat.HAL_GPIO_EXTI_Callback( GPIO_Pin );
+  RosalynSat.EXTI0_1_IRQHandler();
 }

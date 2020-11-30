@@ -17,7 +17,7 @@ public:
   void Setup();
   void SysTick_Handler();
   void USART_IRQHandler();
-  void HAL_GPIO_EXTI_Callback( uint16_t const GPIO_Pin );
+  void EXTI0_1_IRQHandler();
 
 private:
   void HmiLoop();
