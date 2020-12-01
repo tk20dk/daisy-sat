@@ -1,14 +1,14 @@
 #include <sbus.h>
 
 
-void TSbusSerial::Receive( TSbusData &SbusData ) const
+TSbusData TSbusSerial::Receive() const
 {
-  SbusData.Decode( RxFrame );
+  return TSbusData( RxFrame );
 }
 
 void TSbusSerial::Transmit( TSbusData const &SbusData )
 {
-  SbusData.Encode( TxFrame );
+  TxFrame = SbusData.Encode();
 
   TxState = SbusStateNull;
   LL_USART_EnableIT_TXE( USARTx );
@@ -28,14 +28,14 @@ void TSbusSerial::TxEmpty()
   }
   else
   {
-    LL_USART_TransmitData8( USARTx, TxFrame.Buffer[ TxState++ ] );
+    LL_USART_TransmitData8( USARTx, TxFrame[ TxState++ ] );
   }
 }
 
 void TSbusSerial::RxNotEmpty()
 {
   auto const Data = LL_USART_ReceiveData8( USARTx );
-  RxFrame.Buffer[ RxState++ ] = Data;
+  RxFrame[ RxState++ ] = Data;
 
   if( RxState == SbusStateSOF )
   {

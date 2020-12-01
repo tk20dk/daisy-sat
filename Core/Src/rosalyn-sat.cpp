@@ -45,7 +45,7 @@ void TRosalynSat::Loop()
   if( SerialFlag )
   {
     SerialFlag = false;
-    SbusSerial.Receive( SbusDataUpstream );
+    SbusDataUpstream = SbusSerial.Receive();
     HmiError( 5 );
   }
 }
@@ -63,11 +63,9 @@ void TRosalynSat::RadioEvent( TRadioEvent const Event )
     HmiStatus( 10 );
     UartPrintf( "Rssi:%4d Snr:%3d.%u Len:%u Length\n", Rssi, Snr / 10, abs(Snr) % 10, LenRx );
 
-    TSbusData SbusData;
-    SbusData.Decode( Buffer );
+    TSbusData SbusData( Buffer );
 
-    TSbusFrame SbusFrame;
-    SbusData.Encode( SbusFrame );
+    auto const SbusFrame = SbusData.Encode();
 
     Radio.Transmit( SbusFrame.Buffer, sizeof( SbusFrame ));
   }

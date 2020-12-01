@@ -46,6 +46,16 @@ public:
 
 union TSbusFrame
 {
+  uint8_t& operator[]( std::size_t const Index )
+  {
+    return Buffer[ Index ];
+  }
+
+  const uint8_t& operator[]( std::size_t const Index ) const
+  {
+    return Buffer[ Index ];
+  }
+
   static uint32_t const SbusFrameSize = 25;
   uint8_t Buffer[ SbusFrameSize ];
   struct
@@ -82,9 +92,18 @@ struct TSbusData
   static uint32_t const SbusFlagLostFrame = 0x04;
   static uint32_t const SbusFlagFailSafe  = 0x08;
 
-  void Encode( uint8_t *const Buffer ) const
+  TSbusData()
   {
-    Encode( *reinterpret_cast< TSbusFrame* >( Buffer ));
+  }
+
+  explicit TSbusData( TSbusFrame const &SbusFrame )
+  {
+    Decode( SbusFrame );
+  }
+
+  explicit TSbusData( uint8_t const* const Buffer )
+  {
+    Decode( Buffer );
   }
 
   void Decode( uint8_t const* const Buffer )
@@ -92,57 +111,61 @@ struct TSbusData
     Decode( *reinterpret_cast< TSbusFrame const* >( Buffer ));
   }
 
-  void Encode( TSbusFrame &Data ) const
+  TSbusFrame Encode() const
   {
+    TSbusFrame Data;
+
     Data.Sof = SbusSOF;
-	Data.Eof = SbusEOF;
+    Data.Eof = SbusEOF;
 
-	Data.Ch1 = Ch1;
-	Data.Ch2 = Ch2;
-	Data.Ch3 = Ch3;
-	Data.Ch4 = Ch4;
-	Data.Ch5 = Ch5;
-	Data.Ch6 = Ch6;
-	Data.Ch7 = Ch7;
-	Data.Ch8 = Ch8;
-	Data.Ch9 = Ch9;
-	Data.Ch10 = Ch10;
-	Data.Ch11 = Ch11;
-	Data.Ch12 = Ch12;
-	Data.Ch13 = Ch13;
-	Data.Ch14 = Ch14;
-	Data.Ch15 = Ch15;
-	Data.Ch16 = Ch16;
+    Data.Ch1 = Ch1;
+    Data.Ch2 = Ch2;
+    Data.Ch3 = Ch3;
+    Data.Ch4 = Ch4;
+    Data.Ch5 = Ch5;
+    Data.Ch6 = Ch6;
+    Data.Ch7 = Ch7;
+    Data.Ch8 = Ch8;
+    Data.Ch9 = Ch9;
+    Data.Ch10 = Ch10;
+    Data.Ch11 = Ch11;
+    Data.Ch12 = Ch12;
+    Data.Ch13 = Ch13;
+    Data.Ch14 = Ch14;
+    Data.Ch15 = Ch15;
+    Data.Ch16 = Ch16;
 
-	Data.Flag = SbusFlagNull;
-	Data.Flag |= Ch17 ? SbusFlagCh17 : SbusFlagNull;
-	Data.Flag |= Ch18 ? SbusFlagCh18 : SbusFlagNull;
-	Data.Flag |= FailSafe ? SbusFlagLostFrame : SbusFlagNull;
-	Data.Flag |= LostFrame ? SbusFlagFailSafe : SbusFlagNull;
+    Data.Flag = SbusFlagNull;
+    Data.Flag |= Ch17 ? SbusFlagCh17 : SbusFlagNull;
+    Data.Flag |= Ch18 ? SbusFlagCh18 : SbusFlagNull;
+    Data.Flag |= FailSafe ? SbusFlagLostFrame : SbusFlagNull;
+    Data.Flag |= LostFrame ? SbusFlagFailSafe : SbusFlagNull;
+
+    return Data;
   }
 
   void Decode( TSbusFrame const &Data )
   {
     Ch1 = Data.Ch1;
-	Ch2 = Data.Ch2;
-	Ch3 = Data.Ch3;
-	Ch4 = Data.Ch4;
-	Ch5 = Data.Ch5;
-	Ch6 = Data.Ch6;
-	Ch7 = Data.Ch7;
-	Ch8 = Data.Ch8;
-	Ch9 = Data.Ch9;
-	Ch10 = Data.Ch10;
-	Ch11 = Data.Ch11;
-	Ch12 = Data.Ch12;
-	Ch13 = Data.Ch13;
-	Ch14 = Data.Ch14;
-	Ch15 = Data.Ch15;
-	Ch16 = Data.Ch16;
-	Ch17 = ( Data.Flag & SbusFlagCh17 ) == SbusFlagCh17;
-	Ch18 = ( Data.Flag & SbusFlagCh18 ) == SbusFlagCh18;
-	FailSafe = ( Data.Flag & SbusFlagLostFrame ) == SbusFlagLostFrame;
-	LostFrame = ( Data.Flag & SbusFlagFailSafe ) == SbusFlagFailSafe;
+    Ch2 = Data.Ch2;
+    Ch3 = Data.Ch3;
+    Ch4 = Data.Ch4;
+    Ch5 = Data.Ch5;
+    Ch6 = Data.Ch6;
+    Ch7 = Data.Ch7;
+    Ch8 = Data.Ch8;
+    Ch9 = Data.Ch9;
+    Ch10 = Data.Ch10;
+    Ch11 = Data.Ch11;
+    Ch12 = Data.Ch12;
+    Ch13 = Data.Ch13;
+    Ch14 = Data.Ch14;
+    Ch15 = Data.Ch15;
+    Ch16 = Data.Ch16;
+    Ch17 = ( Data.Flag & SbusFlagCh17 ) == SbusFlagCh17;
+    Ch18 = ( Data.Flag & SbusFlagCh18 ) == SbusFlagCh18;
+    FailSafe = ( Data.Flag & SbusFlagLostFrame ) == SbusFlagLostFrame;
+    LostFrame = ( Data.Flag & SbusFlagFailSafe ) == SbusFlagFailSafe;
   }
 
   bool Ch17;
@@ -180,7 +203,7 @@ public:
   TSbusSerial( USART_TypeDef *const USARTx, bool &SerialFlag );
 
   void Setup();
-  void Receive( TSbusData &Data ) const;
+  TSbusData Receive() const;
   void Transmit( TSbusData const &Data );
 
   void RxError();
