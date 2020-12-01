@@ -72,50 +72,33 @@ void TSbusSerial::USART_IRQHandler()
   {
     LL_USART_ClearFlag_PE( USARTx );
     RxError();
-
-    if( CountPE < UCHAR_MAX )
-    {
-      CountPE++;
-    }
+    ++StatPE;
   }
 
   if( LL_USART_IsActiveFlag_FE( USARTx ))
   {
     LL_USART_ClearFlag_FE( USARTx );
     RxError();
-
-    if( CountFE < UCHAR_MAX )
-    {
-      CountFE++;
-    }
+    ++StatFE;
   }
 
   if( LL_USART_IsActiveFlag_NE( USARTx ))
   {
     LL_USART_ClearFlag_NE( USARTx );
     RxError();
-
-    if( CountNE < UCHAR_MAX )
-    {
-      CountNE++;
-    }
+    ++StatNE;
   }
 
   if( LL_USART_IsActiveFlag_ORE( USARTx ))
   {
     LL_USART_ClearFlag_ORE( USARTx );
     RxError();
-
-    if( CountORE < UCHAR_MAX )
-    {
-      CountORE++;
-    }
+    ++StatORE;
   }
 
   if( LL_USART_IsActiveFlag_RTO( USARTx ))
   {
     LL_USART_ClearFlag_RTO( USARTx );
-
     RxTimeout = true;
   }
 }
@@ -134,14 +117,14 @@ void TSbusSerial::Setup()
 TSbusSerial::TSbusSerial( USART_TypeDef *const USARTx, bool &SerialFlag ) :
   RxTimeout( false ),
   SerialFlag( SerialFlag ),
-  CountPE( 0 ),
-  CountFE( 0 ),
-  CountNE( 0 ),
-  CountORE( 0 ),
   RxState( 0 ),
   TxState( 0 ),
   RxFrame(),
   TxFrame(),
+  StatPE(),
+  StatFE(),
+  StatNE(),
+  StatORE(),
   USARTx( USARTx )
 {
 }

@@ -1,9 +1,48 @@
 #ifndef SBUS_H__
 #define SBUS_H__
 
+#include <limits>
 #include "main.h"
-#include <climits>
 
+
+class TStatCount
+{
+public:
+  TStatCount() :
+    Count( 0 )
+  {
+  }
+
+  TStatCount& operator++()
+  {
+    if( Count < std::numeric_limits< uint8_t >::max() )
+    {
+      ++Count;
+    }
+    return *this;
+  }
+
+  TStatCount operator++( int )
+  {
+    TStatCount const Tmp( *this );
+    operator++();
+    return Tmp;
+  }
+
+  TStatCount& operator=( uint8_t const Rhs )
+  {
+    Count = Rhs;
+    return *this;
+  }
+
+  operator uint8_t() const
+  {
+    return Count;
+  }
+
+public:
+  uint8_t Count;
+};
 
 union TSbusFrame
 {
@@ -152,14 +191,14 @@ public:
 private:
   bool RxTimeout;
   bool &SerialFlag;
-  uint8_t CountPE;
-  uint8_t CountFE;
-  uint8_t CountNE;
-  uint8_t CountORE;
   uint32_t RxState;
   uint32_t TxState;
   TSbusFrame RxFrame;
   TSbusFrame TxFrame;
+  TStatCount StatPE;
+  TStatCount StatFE;
+  TStatCount StatNE;
+  TStatCount StatORE;
   USART_TypeDef *const USARTx;
 };
 
