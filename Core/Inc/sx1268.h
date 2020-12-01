@@ -2,8 +2,9 @@
 #define SX1268_H__
 
 #include <functional>
-#include "system.h"
 #include "spi.h"
+#include "system.h"
+#include "sx1268-def.h"
 
 
 union RadioStatus_t

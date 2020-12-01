@@ -1,7 +1,6 @@
-#include <rosalyn-sat.h>
+#include "rosalyn-sat.h"
 
 
-TSystem System;
 TDriverSpi Spi;
 TRosalynSat RosalynSat;
 
@@ -19,7 +18,7 @@ void TRosalynSat::Setup()
   Spi.Setup();
   SbusSerial.Setup();
 
-  if( Radio.Setup( System.Config.Modulation[ 2 ], System.Config.TxPower, System.Config.Channel ))
+  if( Radio.Setup( NvData.Modulation[ 2 ], NvData.TxPower, NvData.Channel ))
   {
     Radio.Receive();
   }

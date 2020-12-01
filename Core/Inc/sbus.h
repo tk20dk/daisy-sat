@@ -92,7 +92,7 @@ struct TSbusData
 	Ch6 = Data.Ch6;
 	Ch7 = Data.Ch7;
 	Ch8 = Data.Ch8;
-	Ch8 = Data.Ch9;
+	Ch9 = Data.Ch9;
 	Ch10 = Data.Ch10;
 	Ch11 = Data.Ch11;
 	Ch12 = Data.Ch12;
