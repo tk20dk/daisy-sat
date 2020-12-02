@@ -190,8 +190,11 @@ struct TSbusData
   uint16_t Ch16;
 };
 
+class TRosalynSat;
 class TSbusSerial
 {
+  friend TRosalynSat;
+
   static uint32_t const SbusSOF       = 0x0f;
   static uint32_t const SbusEOF       = 0x00;
   static uint32_t const SbusStateNull = 0;
@@ -202,10 +205,11 @@ class TSbusSerial
 public:
   TSbusSerial( USART_TypeDef *const USARTx, bool &SerialFlag );
 
-  void Setup();
   TSbusData Receive() const;
   void Transmit( TSbusData const &Data );
 
+private:
+  void Setup();
   void RxError();
   void TxEmpty();
   void RxNotEmpty();

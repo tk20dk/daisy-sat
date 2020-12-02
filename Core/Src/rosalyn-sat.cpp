@@ -179,27 +179,47 @@ TRosalynSat::TRosalynSat() :
 {
 }
 
-extern "C" void RosalynSatLoop()
+inline void RosalynSatLoop0()
 {
   RosalynSat.Loop();
 }
+extern "C" void RosalynSatLoop()
+{
+  RosalynSatLoop0();
+}
 
-extern "C" void RosalynSatSetup()
+inline void RosalynSatSetup0()
 {
   RosalynSat.Setup();
 }
+extern "C" void RosalynSatSetup()
+{
+  RosalynSatSetup0();
+}
 
-extern "C" void SysTick_Handler()
+inline void SysTick_Handler0()
 {
   RosalynSat.SysTick_Handler();
 }
+extern "C" void SysTick_Handler()
+{
+  SysTick_Handler0();
+}
 
-extern "C" void USART1_IRQHandler()
+inline void USART1_IRQHandler0()
 {
   RosalynSat.USART_IRQHandler();
 }
+extern "C" void USART1_IRQHandler()
+{
+  USART1_IRQHandler0();
+}
 
-extern "C" void EXTI0_1_IRQHandler()
+inline void EXTI0_1_IRQHandler0()
 {
   RosalynSat.EXTI0_1_IRQHandler();
+}
+extern "C" void EXTI0_1_IRQHandler()
+{
+  EXTI0_1_IRQHandler0();
 }

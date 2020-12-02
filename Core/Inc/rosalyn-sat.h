@@ -10,20 +10,25 @@
 
 class TRosalynSat
 {
+  friend void RosalynSatLoop0();
+  friend void RosalynSatSetup0();
+  friend void SysTick_Handler0();
+  friend void USART1_IRQHandler0();
+  friend void EXTI0_1_IRQHandler0();
+
 public:
   TRosalynSat();
 
+private:
   void Loop();
   void Setup();
-  void SysTick_Handler();
-  void USART_IRQHandler();
-  void EXTI0_1_IRQHandler();
-
-private:
   void HmiLoop();
   void HmiError( uint32_t const Interval = 0 );
   void HmiStatus( uint32_t const Interval = 0 );
   void RadioEvent( TRadioEvent const Event );
+  void SysTick_Handler();
+  void USART_IRQHandler();
+  void EXTI0_1_IRQHandler();
 
 private:
   bool TimerFlag;
