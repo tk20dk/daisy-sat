@@ -1,4 +1,5 @@
 #include "rosalyn-sat.h"
+#include "aes-crypto.h"
 
 
 TDriverSpi Spi;
@@ -12,6 +13,8 @@ extern "C" uint32_t HAL_GetTick()
 
 void TRosalynSat::Setup()
 {
+  TAesCrypto::TestCFB();
+
   // Enable SysTick IRQ
   SysTick->CTRL  |= SysTick_CTRL_TICKINT_Msk;
 

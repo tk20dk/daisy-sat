@@ -8,11 +8,6 @@
 class TStatCount
 {
 public:
-  TStatCount() :
-    Count( 0 )
-  {
-  }
-
   TStatCount& operator++()
   {
     if( Count < std::numeric_limits< uint8_t >::max() )
@@ -41,7 +36,7 @@ public:
   }
 
 public:
-  uint8_t Count;
+  uint8_t Count = 0;
 };
 
 union TSbusFrame
@@ -168,26 +163,26 @@ struct TSbusData
     LostFrame = ( Data.Flag & SbusFlagFailSafe ) == SbusFlagFailSafe;
   }
 
-  bool Ch17;
-  bool Ch18;
-  bool FailSafe;
-  bool LostFrame;
-  uint16_t Ch1;
-  uint16_t Ch2;
-  uint16_t Ch3;
-  uint16_t Ch4;
-  uint16_t Ch5;
-  uint16_t Ch6;
-  uint16_t Ch7;
-  uint16_t Ch8;
-  uint16_t Ch9;
-  uint16_t Ch10;
-  uint16_t Ch11;
-  uint16_t Ch12;
-  uint16_t Ch13;
-  uint16_t Ch14;
-  uint16_t Ch15;
-  uint16_t Ch16;
+  bool Ch17 = false;
+  bool Ch18 = false;
+  bool FailSafe = false;
+  bool LostFrame = false;
+  uint16_t Ch1 = 0;
+  uint16_t Ch2 = 0;
+  uint16_t Ch3 = 0;
+  uint16_t Ch4 = 0;
+  uint16_t Ch5 = 0;
+  uint16_t Ch6 = 0;
+  uint16_t Ch7 = 0;
+  uint16_t Ch8 = 0;
+  uint16_t Ch9 = 0;
+  uint16_t Ch10 = 0;
+  uint16_t Ch11 = 0;
+  uint16_t Ch12 = 0;
+  uint16_t Ch13 = 0;
+  uint16_t Ch14 = 0;
+  uint16_t Ch15 = 0;
+  uint16_t Ch16 = 0;
 };
 
 class TRosalynSat;
@@ -203,6 +198,7 @@ class TSbusSerial
   static uint32_t const SbusFrameSize = 25;
 
 public:
+  TSbusSerial() = delete;
   TSbusSerial( USART_TypeDef *const USARTx, bool &SerialFlag );
 
   TSbusData Receive() const;
