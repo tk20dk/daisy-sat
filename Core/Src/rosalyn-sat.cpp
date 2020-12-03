@@ -1,5 +1,4 @@
 #include "rosalyn-sat.h"
-#include "aes-crypto.h"
 
 
 TDriverSpi Spi;
@@ -13,10 +12,10 @@ extern "C" uint32_t HAL_GetTick()
 
 void TRosalynSat::Setup()
 {
-  TAesCrypto::TestCFB();
+//  AesCrypto.TestCFB();
 
   // Enable SysTick IRQ
-  SysTick->CTRL  |= SysTick_CTRL_TICKINT_Msk;
+  SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
 
   Spi.Setup();
   SbusSerial.Setup();
@@ -66,11 +65,23 @@ void TRosalynSat::RadioEvent( TRadioEvent const Event )
     HmiStatus( 10 );
     UartPrintf( "Rssi:%4d Snr:%3d.%u Len:%u Length\n", Rssi, Snr / 10, abs(Snr) % 10, LenRx );
 
-    TSbusData SbusData( Buffer );
+    if( LenRx == 25 )
+    {
+      int32_t LenOut;
+      TSbusFrame SbusFrameRx;
 
-    auto const SbusFrame = SbusData.Encode();
+      AesCrypto.DecryptCFB( Buffer, LenRx, SbusFrameRx.Buffer, LenOut );
+      TSbusData SbusData( SbusFrameRx );
 
-    Radio.Transmit( SbusFrame.Buffer, sizeof( SbusFrame ));
+      auto const SbusFrameTx = SbusData.Encode();
+      AesCrypto.EncryptCFB( SbusFrameTx.Buffer, LenRx, Buffer, LenOut );
+
+      Radio.Transmit( Buffer, LenRx );
+    }
+    else
+    {
+      Radio.Receive();
+    }
   }
 
   if( Event == TRadioEvent::TxDone )
@@ -157,6 +168,7 @@ void TRosalynSat::EXTI0_1_IRQHandler()
 }
 
 TRosalynSat::TRosalynSat() :
+  NvData(),
   TimerFlag( false ),
   RadioFlag( false ),
   SerialFlag( false ),
@@ -173,12 +185,12 @@ TRosalynSat::TRosalynSat() :
 	RADIO_TXEN_GPIO_Port,
 	RADIO_TXEN_Pin,
     std::bind( &TRosalynSat::RadioEvent, this, std::placeholders::_1 )),
-  NvData(),
   TimeoutHmiError( 0 ),
   TimeoutHmiStatus( 0 ),
-  SbusSerial( USART1, SerialFlag ),
   SbusDataUpstream(),
-  SbusDataDownstream()
+  SbusDataDownstream(),
+  AesCrypto( NvData.AesIV, NvData.AesKey ),
+  SbusSerial( USART1, SerialFlag )
 {
 }
 

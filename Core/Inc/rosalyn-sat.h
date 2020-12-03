@@ -1,11 +1,11 @@
 #ifndef ROSALYN_SAT_H__
 #define ROSALYN_SAT_H__
 
-#include <sbus.h>
+#include "sbus.h"
 #include "nvdata.h"
 #include "system.h"
 #include "sx1268.h"
-#include "sbus.h"
+#include "aes-crypto.h"
 
 
 class TRosalynSat
@@ -31,16 +31,17 @@ private:
   void EXTI0_1_IRQHandler();
 
 private:
+  TNvData NvData;
   bool TimerFlag;
   bool RadioFlag;
   bool SerialFlag;
   TSx1268 Radio;
-  TNvData NvData;
   uint32_t TimeoutHmiError;
   uint32_t TimeoutHmiStatus;
-  TSbusSerial SbusSerial;
   TSbusData SbusDataUpstream;
   TSbusData SbusDataDownstream;
+  TAesCrypto AesCrypto;
+  TSbusSerial SbusSerial;
 };
 
 #endif // ROSALYN_SAT_H__
